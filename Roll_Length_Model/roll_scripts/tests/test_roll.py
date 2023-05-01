@@ -1,4 +1,4 @@
-#Version 4/27/23
+#Version 5/1/23
 #python -m pytest test_roll.py -v -s
 #2345678901234567890123456789012345678901234567890123456789012345678901234567890
 
@@ -27,10 +27,41 @@ def df_raw():
 def roll_raw_fit(df_raw):
     return RollLength(df_raw)
 
+"""
+=========================================================================
+Length calculation given caliper, diam and diam_core inputs
+=========================================================================
+"""
+
 @pytest.fixture()
-def roll_LCalc(df_raw):
-    return RollLength(df_raw=df_raw, diam_roll=120.5, diam_core=43.2, 
-                      caliper=0.47)
+def roll_LCalc():
+    """
+    A class instance with inputs for length calculation only
+    """
+    return RollLength(diam_roll=120.5, diam_core=43.2, caliper=0.47)
+
+def test_CalculateLength(roll_LCalc):
+    """
+    Calculate roll length in meters
+    JDL 5/1/23
+    """
+    roll_LCalc.CalculateLength()
+    assert roll_LCalc.length == 21.1
+
+def test_LCalc_fixture(roll_LCalc):
+    """
+    Check fixture's inputs
+    JDL 5/1/23
+    """
+    assert roll_LCalc.diam_roll == 120.5
+    assert roll_LCalc.diam_core == 43.2
+    assert roll_LCalc.caliper == 0.47
+
+"""
+=========================================================================
+Plotting raw data (no tests; just a way to show plots)
+=========================================================================
+"""
 
 def x_test_PlottingMethods(roll_raw_fit):
     # Add calculated columns
@@ -41,6 +72,12 @@ def x_test_PlottingMethods(roll_raw_fit):
 
     # Plot length vs. diam_m^2
     roll_raw_fit.PlotLengthVsDiamSquared()
+
+"""
+=========================================================================
+CaliperFromRawData Procedure
+=========================================================================
+"""
 
 def test_CalculateCaliper(roll_raw_fit):
     """
@@ -88,7 +125,7 @@ def test_FitRawData(roll_raw_fit):
 
 def test_AddCalculatedRawCols(roll_raw_fit, df_raw):
     """
-    Add ‘diam_m’ and ‘diam_m^2’ calculated columns to .df_raw
+    Add Calculated columns to length, diam raw measurement data
     """
     # Call the new method to add calculated columns
     roll_raw_fit.AddCalculatedRawCols()
@@ -103,7 +140,12 @@ def test_AddCalculatedRawCols(roll_raw_fit, df_raw):
     # Check the values of the calculated columns
     assert roll_raw_fit.df_raw.loc[1, 'diam_m'] == 0.120
     assert roll_raw_fit.df_raw.loc[1, 'diam_m^2'] == 0.0144
-                                        
+
+"""
+=========================================================================
+Instancing RollLength Class
+=========================================================================
+"""
 def test_RollLength_Init():
     # Test case 1: Check if the attributes are set properly when all parameters are provided
     df_raw = pd.DataFrame({'length': [10, 20, 30], 'diameter': [100, 150, 200]})
@@ -113,7 +155,6 @@ def test_RollLength_Init():
     IsTest=True
 
     roll = RollLength(df_raw, diam_roll, diam_core, caliper, IsTest)
-
     assert roll.df_raw.equals(df_raw)
     assert roll.diam_roll is None
     assert roll.diam_core == diam_core
@@ -121,7 +162,6 @@ def test_RollLength_Init():
 
     # Test case 2: Check if the attributes are set properly when no parameters are provided
     roll = RollLength()
-
     assert roll.df_raw is None
     assert roll.diam_core is None
     assert roll.caliper is None
@@ -130,10 +170,15 @@ def test_RollLength_Init():
     df_raw = pd.DataFrame({'length': [10, 20, 30], 'diameter': [100, 150, 200]})
 
     roll = RollLength(df_raw)
-
     assert roll.df_raw.equals(df_raw)
     assert roll.diam_core is None
     assert roll.caliper is None
+
+"""
+=========================================================================
+Utility functions for Print()
+=========================================================================
+"""
 
 def PrintDF(df, text=''):
     print('\n', text, '\n')

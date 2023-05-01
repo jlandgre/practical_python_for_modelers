@@ -1,3 +1,4 @@
+#Version 5/1/23
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import math
@@ -16,12 +17,13 @@ class RollLength:
             caliper (float, optional): Thickness of the substrate measured in millimeters.
             IsTest (bool, optional): Flag indicating whether it is a test scenario.
         """
+        self.df_raw = df_raw    
         self.diam_core = diam_core
         self.diam_roll = diam_roll
         self.caliper = caliper
+        self.length = None #Calculated by .CalculateLength()
 
-        #Raw fit attributes
-        self.df_raw = df_raw        
+        #Raw fit attributes   
         self.slope = None
         self.intercept = None
         self.R_squared = None
@@ -63,7 +65,6 @@ class RollLength:
         raw data linear fit
         JDL 4/27/23
         """
-
         if self.df_raw is None:
             raise ValueError("No raw data available to fit.")
 
@@ -107,16 +108,13 @@ class RollLength:
     Length calculation given caliper, diam and diam_core inputs
     =========================================================================
     """
-    @property
     def CalculateLength(self):
         """
         Calculate roll length in meters
-        JDL 4/27/23
+        JDL 4/27/23; modified 5/1/23
         """
         mm_m = 1000.
         numerator = math.pi * ((self.diam_roll / mm_m) ** 2 - 
                                (self.diam_core / mm_m) ** 2)
         denom = (4 * (self.caliper / mm_m))
-        self.length = numerator / denom
-        return round(self.length, 1)
-
+        self.length = round(numerator / denom, 1)

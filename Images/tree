@@ -6,3 +6,24 @@ Roll_Length_Model
    └── tests
        ├── df_raw_validation.xlsx
        └── test_roll.py
+
+
+Roll_Length_Model2
+│   ├── roll_case_studies
+│   │   ├── Demo_Study_071223
+│   │   │   ├── Roll_Length_Projfiles_Demo.ipynb
+│   │   │   └── raw_data
+│   │   │       └── some_file.xlsx
+│   │           └── other_file.xlsx
+│   │   └── _dev
+│   │       ├── Roll_Length_Projfiles_Demo.ipynb
+│   │       └── raw_data
+│   │           ├── cushiony_tp_length_vs_diam.xlsx
+│   │           └── df_raw_validation.xlsx
+│   └── roll_scripts
+│       ├── Code\ Plan_Roll\ Length\ Model.docx
+│       ├── projfiles.py
+│       ├── roll2.py
+│       └── tests
+│           ├── df_raw_validation.xlsx
+│           └── test_roll.py

@@ -1,0 +1,8 @@
+Roll_Length_Model
+   ├── Roll_Length_Level3.ipynb
+   ├── cushiony_tp_length_vs_diam.xlsx
+   ├── libs
+   │   └── roll.py
+   └── tests
+       ├── df_raw_validation.xlsx
+       └── test_roll.py

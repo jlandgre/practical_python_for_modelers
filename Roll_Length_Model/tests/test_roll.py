@@ -7,54 +7,15 @@ import pandas as pd
 import numpy as np
 import pytest
 current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.append(parent_dir)
+libs_dir = os.path.dirname(current_dir) +  os.sep + 'libs' 
+if not libs_dir in sys.path: sys.path.append(libs_dir)
 from roll import RollLength
-from projfiles import Files
 
 IsPrint = False
-
-@pytest.fixture
-def files_test():
-    # Instantiate the Files class with the desired arguments
-    return Files(proj_abbrev='roll', IsTest=True)
 
 @pytest.fixture()
 def roll_raw_fit():
     return RollLength(file_raw:='df_raw_validation.xlsx')
-
-"""
-=========================================================================
-CalculateRollLength Procedure -  Length calculation given caliper, diam 
-and diam_core inputs. 
-
-All inputs in units of mm. length output in meters
-=========================================================================
-"""
-
-@pytest.fixture()
-def roll_LCalc():
-    """
-    A class instance with inputs for length calculation only
-    """
-    return RollLength(diam_roll=120.5, diam_core=43.2, caliper=0.47)
-
-def test_CalculateLength(roll_LCalc):
-    """
-    Calculate roll length in meters
-    JDL 5/1/23
-    """
-    roll_LCalc.CalculateLengthProcedure()
-    assert roll_LCalc.length == 21.1
-
-def test_LCalc_fixture(roll_LCalc):
-    """
-    Check fixture's inputs
-    JDL 5/1/23
-    """
-    assert roll_LCalc.diam_roll == 120.5
-    assert roll_LCalc.diam_core == 43.2
-    assert roll_LCalc.caliper == 0.47
 
 """
 =========================================================================
@@ -63,7 +24,7 @@ CaliperFromRawData Procedure
 """
 def test_ReadRawData(roll_raw_fit):
     """
-    Import user-specified raw data table into a DataFrame
+    Import experimental length versus diam data to Pandas DataFrame
     """
     roll_raw_fit.ReadRawData()
     assert roll_raw_fit.df_raw.index.size == 2
@@ -121,7 +82,8 @@ def test_FitRawData(roll_raw_fit):
 
 def test_CalculateCaliper(roll_raw_fit):
     """
-    Test the CalculateCaliper method to check the caliper calculation.
+    Calculate the caliper attribute from the slope and convert to millimeters.
+    Round the caliper to 4 decimal places.
     """
     roll_raw_fit.ReadRawData()
     roll_raw_fit.AddCalculatedRawCols()
@@ -173,6 +135,40 @@ def x_test_PlottingMethods(roll_raw_fit):
     roll_raw_fit.AddCalculatedRawCols()
 
     roll_raw_fit.PlotRawAndTransformedData()
+
+"""
+=========================================================================
+CalculateRollLength Procedure -  Length calculation given caliper, diam 
+and diam_core inputs. 
+
+All inputs in units of mm. length output in meters
+=========================================================================
+"""
+
+@pytest.fixture()
+def roll_LCalc():
+    """
+    A class instance with inputs for length calculation only
+    """
+    return RollLength(diam_roll=120.5, diam_core=43.2, caliper=0.47)
+
+def test_CalculateLength(roll_LCalc):
+    """
+    Calculate roll length in meters
+    JDL 5/1/23
+    """
+    roll_LCalc.CalculateLengthProcedure()
+    assert roll_LCalc.length == 21.1
+
+def test_LCalc_fixture(roll_LCalc):
+    """
+    Check fixture's inputs
+    JDL 5/1/23
+    """
+    assert roll_LCalc.diam_roll == 120.5
+    assert roll_LCalc.diam_core == 43.2
+    assert roll_LCalc.caliper == 0.47
+
 
 """
 =========================================================================

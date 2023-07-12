@@ -3,6 +3,8 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import math
 import pandas as pd
+#2345678901234567890123456789012345678901234567890123456789012345678901234567890
+
 
 class RollLength:
     def __init__(self, file_raw='', diam_roll=None, diam_core=None, caliper=None):
@@ -11,23 +13,27 @@ class RollLength:
         JDL 4/27/23
 
         Args:
-            file_raw (string, optional): Directory path + filename for raw, length versus diam data
-                where rows represent measurements on a roll as material is unwound.
-            diam_core (float, optional): Diameter in millimeters of the core that the material is wound onto.
-            caliper (float, optional): Thickness of the substrate measured in millimeters.
+        file_raw (string, optional): Directory path + filename for raw, length 
+            versus diam data where rows represent measurements on a roll as 
+            material is unwound.
+        diam_core (float, optional): Diameter in mm of the core that the 
+            material is wound onto.
+        diam_roll (float, optional): Roll diameter [mm] for the substrate roll
+        caliper (float, optional): Thickness of the substrate measured in mm.
         """
-        self.file_raw = file_raw
 
+        #CalculateRollLength procedure
         self.diam_core = diam_core
         self.diam_roll = diam_roll
         self.caliper = caliper
-        self.length = None #Calculated by .CalculateLength()
+        self.length = None #Substrate roll length [m]
 
-        #CaliperFromRawData attributes 
-        self.df_raw = None
-        self.slope = None
-        self.intercept = None
-        self.R_squared = None
+        #CaliperFromRawData procedure attributes 
+        self.file_raw = file_raw 
+        self.df_raw = None #Df with raw length [m] vs. diam [mm] exptl. data
+        self.slope = None #Calculated slope from linear fit
+        self.intercept = None #Calculated y-intercept from linear fit
+        self.R_squared = None #Calculated R-Squared from linear fit
 
     """
     =========================================================================
@@ -59,7 +65,7 @@ class RollLength:
     
     def ReadRawData(self):
         """
-        Import the raw data to Pandas DataFrame
+        Import experimental length versus diam data to Pandas DataFrame
         """
         self.df_raw = pd.read_excel(self.file_raw)
     
@@ -74,7 +80,6 @@ class RollLength:
         """
         Calculate slope, intercept, and R-squared attributes for 
         raw data linear fit
-        JDL 4/27/23
         """
         if self.df_raw is None:
             raise ValueError("No raw data available to fit.")
@@ -82,25 +87,19 @@ class RollLength:
         X = self.df_raw['diam_m^2'].values.reshape(-1, 1)
         y = self.df_raw['length'].values
 
-        # Fit the data using scikit-learn LinearRegression
         reg = LinearRegression()
         reg.fit(X, y)
 
-        # Set the attributes
         self.slope = reg.coef_[0]
         self.intercept = reg.intercept_
         self.R_squared = reg.score(X, y)
     
     def CalculateCaliper(self):
         """
-        Calculate the caliper attribute from the slope and convert to millimeters.
-        Round the caliper to 4 decimal places.
+        Calculate the caliper attribute from the slope and convert to mm
+        Round caliper to 4 decimal places.
         """
-        
-        # Calculate caliper using the formula: caliper = pi / (4 * slope)
         self.caliper = math.pi / (4 * self.slope)
-
-        # Convert caliper to millimeters and round
         self.caliper *= 1000
         self.caliper = round(self.caliper, 4)
 
@@ -127,10 +126,12 @@ class RollLength:
     """
     def PlotRawAndTransformedData(self):
         text = 'Diameter (mm)', 'Length (m)', 'Length vs. Diameter'
-        XYDataPlot(self.df_raw['diameter'], self.df_raw['length'], text[0],  text[1], text[2])
+        self.XYDataPlot(self.df_raw['diameter'], self.df_raw['length'], 
+                        text[0],  text[1], text[2])
 
         text = 'Diameter Squared (m^2)', 'Length (m)', 'Length vs. Diameter Squared'
-        XYDataPlot(self.df_raw['diam_m^2'], self.df_raw['length'], text[0],  text[1], text[2]) 
+        self.XYDataPlot(self.df_raw['diam_m^2'], self.df_raw['length'], 
+                        text[0],  text[1], text[2]) 
 
 
     """
@@ -157,12 +158,18 @@ class RollLength:
         denom = (4 * (self.caliper / mm_m))
         self.length = round(numerator / denom, 1)
 
-def XYDataPlot(X, Y, x_label, y_label, plot_title):
     """
-    XY Plot of raw and transformed data
+    =========================================================================
+    Utility methods
+    =========================================================================
     """
-    plt.scatter(X, Y)
-    plt.xlabel(x_label), plt.ylabel(y_label)
-    plt.title(plot_title)
-    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
-    plt.show()
+    @staticmethod
+    def XYDataPlot(X, Y, x_label, y_label, plot_title):
+        """
+        XY Plot of raw and transformed data
+        """
+        plt.scatter(X, Y)
+        plt.xlabel(x_label), plt.ylabel(y_label)
+        plt.title(plot_title)
+        plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+        plt.show()
